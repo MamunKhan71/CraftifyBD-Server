@@ -21,6 +21,7 @@ async function run() {
         await client.connect();
         const database = client.db('CraftifyBD')
         const productCollection = database.collection('products')
+        const userCollection = database.collection('users')
         app.get('/products', async (req, res) => {
             const cursor = productCollection.find()
             const result = await cursor.toArray()
@@ -66,11 +67,22 @@ async function run() {
             const result = await productCollection.updateOne(filter, cursor, options)
             res.send(result)
         })
-        app.delete('/userproducts/:id', (req, res) => {
+        app.delete('/userproducts/:id', async (req, res) => {
             const id = req.params.id
             const query = { _id: new ObjectId(id) }
-            const result = productCollection.deleteOne(query)
+            const result = await productCollection.deleteOne(query)
             res.send(result)
+        })
+        app.post('/addusers', async (req, res) => {
+            const data = req.body;
+            const find = { _id: data._id }
+            const userFinder = await userCollection.findOne(find)
+            if(!userFinder){
+                const cursor = await userCollection.insertOne(data)
+                res.send(cursor)
+            }else{
+                res.send("User Already Exists!")
+            }
         })
     } finally {
     }
