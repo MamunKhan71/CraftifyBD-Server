@@ -95,7 +95,8 @@ async function run() {
                         userPhone: data.userPhone,
                         userLocation: data.userLocation,
                         userWebsite: data.userWebsite,
-                        userGender: data.userGender
+                        userGender: data.userGender,
+                        userInfo : data.userInfo
                     }
                 };
                 const options = { upsert: true };
@@ -107,6 +108,12 @@ async function run() {
                 res.status(400).send("Invalid ID");
             }
         });
+        app.get('/userprofile/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: id }
+            const finder = await userCollection.findOne(query)
+            res.send(finder)
+        })
     } finally {
     }
 }
