@@ -39,15 +39,16 @@ async function run() {
         })
         app.get('/userproducts/:id', async (req, res) => {
             const user = req.params.id
-            const query = { "userEmail": user }
+            const query = { _id: user }
             const cursor = productCollection.find(query)
             const result = await cursor.toArray()
             res.send(result);
+
         })
         app.put('/userproducts/:id', async (req, res) => {
             const id = req.params.id
             const data = req.body
-            const filter = { _id: new ObjectId(id) }
+            const filter = { _id: id }
             const cursor = {
                 $set: {
                     itemPhoto: data.itemPhoto,
