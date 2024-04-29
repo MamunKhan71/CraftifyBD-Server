@@ -77,13 +77,36 @@ async function run() {
             const data = req.body;
             const find = { _id: data._id }
             const userFinder = await userCollection.findOne(find)
-            if(!userFinder){
+            if (!userFinder) {
                 const cursor = await userCollection.insertOne(data)
                 res.send(cursor)
-            }else{
+            } else {
                 res.send("User Already Exists!")
             }
         })
+        app.patch('/updateuser/:id', async (req, res) => {
+            const data = req.body;
+            const id = req.params.id;
+            try {
+                const query = { _id: id };
+                const cursor = {
+                    $set: {
+                        userName: data.userName,
+                        userPhone: data.userPhone,
+                        userLocation: data.userLocation,
+                        userWebsite: data.userWebsite,
+                        userGender: data.userGender
+                    }
+                };
+                const options = { upsert: true };
+                const result = await userCollection.updateOne(query, cursor, options);
+                console.log(result);
+                res.send(result);
+            } catch (error) {
+                console.error(error);
+                res.status(400).send("Invalid ID");
+            }
+        });
     } finally {
     }
 }
