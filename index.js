@@ -3,8 +3,11 @@ const express = require('express')
 const cors = require('cors')
 require('dotenv').config()
 const app = express()
-app.use(cors())
+app.use(cors({
+    origin: ["http://localhost:5173", "https://craftifybd-dd2ee.web.app"]
+}))
 app.use(express.json())
+
 const port = process.env.PORT || 5000
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.q3zjxg2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -18,10 +21,10 @@ const client = new MongoClient(uri, {
 });
 async function run() {
     try {
-        await client.connect();
         const database = client.db('CraftifyBD')
         const productCollection = database.collection('products')
         const userCollection = database.collection('users')
+        const categoryCollection = database.collection('categories')
         app.get('/products', async (req, res) => {
             const cursor = productCollection.find()
             const result = await cursor.toArray()
@@ -39,16 +42,15 @@ async function run() {
         })
         app.get('/userproducts/:id', async (req, res) => {
             const user = req.params.id
-            const query = { _id: user }
+            const query = { uid: user }
             const cursor = productCollection.find(query)
             const result = await cursor.toArray()
             res.send(result);
-
         })
         app.put('/userproducts/:id', async (req, res) => {
             const id = req.params.id
             const data = req.body
-            const filter = { _id: id }
+            const filter = { _id: new ObjectId(id) }
             const cursor = {
                 $set: {
                     itemPhoto: data.itemPhoto,
@@ -146,7 +148,13 @@ async function run() {
                 res.status(500).send("Internal Server Error");
             }
         })
+        app.get('/category', async (req, res) => {
+            const cursor = categoryCollection.find()
+            const result = await cursor.toArray()
+            res.send(result)
+        })
     } finally {
+
     }
 }
 app.listen(port, () => {
