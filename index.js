@@ -130,6 +130,22 @@ async function run() {
                 res.status(500).send("Internal Server Error");
             }
         });
+        app.get('/categoryfilter/:id', async (req, res) => {
+            const category = req.params.id
+            try {
+                const filter = {
+                    $match: {
+                        subCategory: category
+                    }
+                }
+                const result = await productCollection.aggregate([filter]).toArray()
+                res.send(result)
+
+            } catch (error) {
+                console.error(error);
+                res.status(500).send("Internal Server Error");
+            }
+        })
     } finally {
     }
 }
