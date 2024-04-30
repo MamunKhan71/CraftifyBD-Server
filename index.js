@@ -97,7 +97,7 @@ async function run() {
                         userLocation: data.userLocation,
                         userWebsite: data.userWebsite,
                         userGender: data.userGender,
-                        userInfo : data.userInfo
+                        userInfo: data.userInfo
                     }
                 };
                 const options = { upsert: true };
@@ -115,6 +115,21 @@ async function run() {
             const finder = await userCollection.findOne(query)
             res.send(finder)
         })
+        app.get('/productfilter', async (req, res) => {
+            try {
+                const filter = {
+                    $match: {
+                        customization: "Yes"
+                    }
+                };
+
+                const result = await productCollection.aggregate([filter]).toArray();
+                res.send(result);
+            } catch (error) {
+                console.error(error);
+                res.status(500).send("Internal Server Error");
+            }
+        });
     } finally {
     }
 }
